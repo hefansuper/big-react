@@ -9,6 +9,7 @@ const reactPkgPath = resolvePkgPath(name);
 // react产物路径
 const reactPkgDistPath = resolvePkgPath(name, true);
 
+// 打成3个不同的js文件，而不是一个文件。
 export default [
 	// react 包
 	{
