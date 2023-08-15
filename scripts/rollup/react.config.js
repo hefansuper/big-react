@@ -1,6 +1,7 @@
 // 打包react包的rollup配置项
 
 import { getPackageJson, resolvePkgPath, getBaseRollupPlugins } from './utils';
+import generatePackageJson from 'rollup-plugin-generate-package-json';
 
 // react包相关的信息。
 const { name, module } = getPackageJson('react');
@@ -19,7 +20,23 @@ export default [
 			name: 'index.js',
 			format: 'umd'
 		},
-		plugins: [...getBaseRollupPlugins()]
+		plugins: [
+			...getBaseRollupPlugins(),
+			// 生成package.json
+			generatePackageJson({
+				// 入口
+				inputFolder: reactPkgPath,
+				// 出口
+				outputFolder: reactPkgDistPath,
+				// package.json中需要的字段，不是所有的字段都需要，比如shared字段就不需要。
+				baseContents: ({ name, description, version }) => ({
+					name,
+					description,
+					version,
+					main: 'index.js'
+				})
+			})
+		]
 	},
 	// jsx-runtime
 	{
