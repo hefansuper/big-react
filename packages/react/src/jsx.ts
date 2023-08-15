@@ -78,4 +78,34 @@ export const jsx = (type: ElementType, config: any, ...maybeChildren: any) => {
 };
 
 // dev环境时候使用的jsx方法，可以在这些中做一些校验，为开发提效。
-export const jsxDev = jsx;
+export const jsxDev = (type: ElementType, config: any) => {
+	let key: Key = null;
+	const props: Props = {};
+	let ref: Ref = null;
+
+	// 遍历config
+	for (const prop in config) {
+		const val = config[prop];
+
+		if (prop == 'key') {
+			if (val !== undefined) {
+				key = '' + val;
+			}
+			continue;
+		}
+
+		if (prop == 'ref') {
+			if (val !== undefined) {
+				ref = val;
+			}
+			continue;
+		}
+
+		// 自己的props
+		if ({}.hasOwnProperty.call(config, prop)) {
+			props[prop] = val;
+		}
+	}
+
+	return ReactElement(type, key, ref, props);
+};
