@@ -1,6 +1,6 @@
 // 打包react包的rollup配置项
 
-import { getPackageJson, resolvePkgPath } from './utils';
+import { getPackageJson, resolvePkgPath, getBaseRollupPlugins } from './utils';
 
 // react包相关的信息。
 const { name, module } = getPackageJson('react');
@@ -10,13 +10,33 @@ const reactPkgPath = resolvePkgPath(name);
 const reactPkgDistPath = resolvePkgPath(name, true);
 
 export default [
-	// react
+	// react 包
 	{
 		input: `${reactPkgPath}/${module}`,
 		output: {
 			file: `${reactPkgDistPath}/index.js`,
 			name: 'index.js',
 			format: 'umd'
-		}
+		},
+		plugins: [...getBaseRollupPlugins()]
+	},
+	// jsx-runtime
+	{
+		input: `${reactPkgPath}/src/jsx.ts`,
+		output: [
+			// jsx-runtime
+			{
+				file: `${reactPkgDistPath}/jsx-runtime.js`,
+				name: 'jsx-runtime.js',
+				format: 'umd'
+			},
+			// jsx-dev-runtime
+			{
+				file: `${reactPkgDistPath}/jsx-dev-runtime.js`,
+				name: 'jsx-dev-runtime.js',
+				format: 'umd'
+			}
+		],
+		plugins: [...getBaseRollupPlugins()]
 	}
 ];

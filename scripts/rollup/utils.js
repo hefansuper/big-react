@@ -1,6 +1,11 @@
 import path from 'path';
 import fs from 'fs';
 
+// 打包ts成js
+import ts from 'rollup-plugin-typescript2';
+// 将commonjs打成es modules。
+import cjs from '@rollup/plugin-commonjs';
+
 // 包的路径
 const pkgPath = path.resolve(__dirname, '../../packages');
 // 打包后的dist文件的路径。文件名字为node_modules是node的规范。
@@ -21,4 +26,11 @@ export function getPackageJson(pkgName) {
 		encoding: 'utf-8'
 	});
 	return JSON.parse(string);
+}
+
+// 获取公共的rollup打包的方法。
+
+// typescript 配置。
+export function getBaseRollupPlugins({ typescript = {} } = {}) {
+	return [cjs(), ts(typescript)];
 }

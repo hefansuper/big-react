@@ -1,11 +1,5 @@
 import { REACT_ELEMENT_TYPE } from 'shared/ReactSymbols';
-import {
-	ReactElementType,
-	ElementType,
-	Key,
-	Ref,
-	Props
-} from 'shared/ReactTypes';
+import { ElementType, Key, Ref, Props } from 'shared/ReactTypes';
 
 // React element
 
