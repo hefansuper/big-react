@@ -4,7 +4,6 @@ import { WorkTag } from './workTags';
 
 export class FiberNode {
 	tag: WorkTag;
-	pendingProps: Props;
 	key: Key;
 
 	stateNode: any;
@@ -17,17 +16,21 @@ export class FiberNode {
 
 	ref: any;
 
+	pendingProps: Props;
+	memoizedProps: Props | null;
+
 	// tag 描述fiber node 是什么类型的节点。
 	// key 写jsx时写的key。
 	constructor(tag: WorkTag, pendingProps: Props, key: Key) {
 		this.tag = tag;
-		this.pendingProps = pendingProps;
 		this.key = key;
 
 		// HostComponent <div></div> 保存的就是div的这个DOM
 		this.stateNode = null;
 		// FunctionComponent ()=>{} 就是这个本身。
 		this.type = null;
+
+		// 构成树状结构
 
 		// 指向父的fiberNode
 		// fiberNode是一个工作单元，当前的工作单元任务完成后，
@@ -46,5 +49,11 @@ export class FiberNode {
 		this.index = 0;
 
 		this.ref = null;
+
+		//作为工作单元。
+		// 开始的时候的状态
+		this.pendingProps = pendingProps;
+		// 工作完的时候，结束的状态
+		this.memoizedProps = null;
 	}
 }
