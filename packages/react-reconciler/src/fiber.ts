@@ -1,6 +1,7 @@
 import { Props, Key } from 'shared/ReactTypes';
 
 import { WorkTag } from './workTags';
+import { Flags, NoFlags } from './fiberFlags';
 
 export class FiberNode {
 	tag: WorkTag;
@@ -18,6 +19,8 @@ export class FiberNode {
 
 	pendingProps: Props;
 	memoizedProps: Props | null;
+	alternate: FiberNode | null;
+	flags: Flags;
 
 	// tag 描述fiber node 是什么类型的节点。
 	// key 写jsx时写的key。
@@ -55,5 +58,9 @@ export class FiberNode {
 		this.pendingProps = pendingProps;
 		// 工作完的时候，结束的状态
 		this.memoizedProps = null;
+
+		this.alternate = null;
+		// 副作用
+		this.flags = NoFlags;
 	}
 }
