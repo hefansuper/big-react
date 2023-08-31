@@ -11,3 +11,7 @@ export interface ReactElementType {
 	$$typeof: symbol | number;
 	props: Props;
 }
+
+// this.setState({XXX:1})
+// this.setState({XXX:1}=>{XXX:2})
+export type Action<State> = State | ((prevState: State) => State);
