@@ -3,6 +3,10 @@ import { Props, Key } from 'shared/ReactTypes';
 import { WorkTag } from './workTags';
 import { Flags, NoFlags } from './fiberFlags';
 
+// 为什么直接引用，而是在tsconfig中配置paths。
+// 因为我们不能限制hostconfig，在每个宿主环境中我们都要实现对应的hostconfig。
+import { Container } from 'hostConfig';
+
 export class FiberNode {
 	tag: WorkTag;
 	key: Key;
@@ -19,8 +23,10 @@ export class FiberNode {
 
 	pendingProps: Props;
 	memoizedProps: Props | null;
+	memoizedState: any;
 	alternate: FiberNode | null;
 	flags: Flags;
+	updateQueue: unknown;
 
 	// tag 描述fiber node 是什么类型的节点。
 	// key 写jsx时写的key。
@@ -58,9 +64,61 @@ export class FiberNode {
 		this.pendingProps = pendingProps;
 		// 工作完的时候，结束的状态
 		this.memoizedProps = null;
+		this.updateQueue = null;
+		// 更新完后的state。
+		this.memoizedState = null;
 
 		this.alternate = null;
 		// 副作用
 		this.flags = NoFlags;
 	}
 }
+
+// ReactDOM.createRoot(rootElement).render(<App/>)
+export class FiberRootNode {
+	// 这个就是ReactDOM.createRoot，但是每个宿主环境不一样，所以就要更抽象的标识。
+	container: Container;
+	// 指向hostRootFiber
+	current: FiberNode;
+	// 更新完成递归之后的FiberNode
+	finishedWork: FiberNode | null;
+	constructor(container: Container, hostRootFiber: FiberNode) {
+		this.container = container;
+		this.current = hostRootFiber;
+		hostRootFiber.stateNode = this;
+		this.finishedWork = null;
+	}
+}
+
+// 从root开始创建WorkInProcess
+// 双缓存，返回的是另外一个fiberNode。
+export const createWorkInProgress = (
+	current: FiberNode,
+	pendingProps: Props
+): FiberNode => {
+	let wip = current.alternate;
+
+	if (wip === null) {
+		// 首次渲染的时候，wip是空。
+		// 创建一个fiberNode。
+		wip = new FiberNode(current.tag, pendingProps, current.key);
+		wip.stateNode = current.stateNode;
+
+		// 建立指针关系，双缓存的两个节点。
+		wip.alternate = current;
+		current.alternate = wip;
+	} else {
+		// 更新阶段。
+		wip.pendingProps = pendingProps;
+		// 清除副作用。这个副作用可能是上一次更新留下的。
+		wip.flags = NoFlags;
+	}
+
+	wip.type = current.type;
+	wip.updateQueue = current.updateQueue;
+	wip.child = current.child;
+	wip.memoizedProps = current.memoizedProps;
+	wip.memoizedState = current.memoizedState;
+
+	return wip;
+};

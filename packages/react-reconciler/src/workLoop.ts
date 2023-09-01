@@ -1,14 +1,16 @@
 import { beginWork } from './beginWork';
 import { completeWork } from './completeWork';
 
-import { FiberNode } from './fiber';
+import { FiberNode, FiberRootNode, createWorkInProgress } from './fiber';
+import { HostRoot } from './workTags';
 
 // 双缓存，正在reconcile中计算的fiberNode树。
 let workInProgress: FiberNode | null = null;
 
 // 初始化
-function prepareFreshStack(fiber: FiberNode) {
-	workInProgress = fiber;
+// 传入的是FiberRootNode，不是普通的fiber，需要进行处理。
+function prepareFreshStack(root: FiberRootNode) {
+	workInProgress = createWorkInProgress(root.current, {});
 }
 
 // dfs 中的归，向上的操作。
@@ -67,4 +69,31 @@ function renderRoot(root: FiberNode) {
 			workInProgress = null;
 		}
 	} while (true);
+}
+
+export function scheduleUpdateOnFiber(fiber: FiberNode) {
+	// TODO 调度功能
+	// 获取fiberRootNode。
+	const root = markUpdateFromFiberToRoot(fiber);
+	renderRoot(root);
+}
+
+// 从当前的阶段遍历到最顶层的节点。
+// 返回的事fiberRootNode。
+export function markUpdateFromFiberToRoot(fiber: FiberNode) {
+	let node = fiber;
+	let parent = node.return;
+
+	// 如果是App就有return指针，如果是hostRootFiber就没有return指针。
+	while (parent !== null) {
+		// 是app
+		node = parent;
+		parent = parent.return;
+	}
+	// 是 hostRootFiber
+	if (node.tag === HostRoot) {
+		return node.stateNode;
+	}
+
+	return null;
 }
