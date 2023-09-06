@@ -1,5 +1,7 @@
 import path from 'path';
 import fs from 'fs';
+// 将对应的变量在不同的环境中替换为不同的值。
+import replace from '@rollup/plugin-replace';
 
 // 打包ts成js
 import ts from 'rollup-plugin-typescript2';
@@ -31,6 +33,12 @@ export function getPackageJson(pkgName) {
 // 获取公共的rollup打包的方法。
 
 // typescript 配置。
-export function getBaseRollupPlugins({ typescript = {} } = {}) {
-	return [cjs(), ts(typescript)];
+// replace 将__DEV__替换为false或者true，来区隔环境。
+export function getBaseRollupPlugins({
+	alias = {
+		__DEV__: true
+	},
+	typescript = {}
+} = {}) {
+	return [replace(alias), cjs(), ts(typescript)];
 }
