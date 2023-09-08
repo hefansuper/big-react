@@ -1,8 +1,10 @@
 // 递归中递的阶段，就是往下
 
+import { ReactElementType } from 'shared/ReactTypes';
 import { FiberNode } from './fiber';
 import { UpdateQueue, processUpdateQueue } from './updateQueue';
 import { HostComponent, HostRoot, HostText } from './workTags';
+import { mountChildFibers, reconcileChildFibers } from './childFiber';
 
 export const beginWork = (wip: FiberNode) => {
 	// 比较，返回子fiberNode
@@ -49,4 +51,18 @@ function updateHostComponent(wip: FiberNode) {
 	const nextChildren = nextProps.children;
 	reconcileChildren(wip, nextChildren);
 	return wip.child;
+}
+
+function reconcileChildren(wip: FiberNode, children: ReactElementType) {
+	const current = wip.alternate;
+
+	if (current !== null) {
+		// update  少部分节点的更新。
+		wip.child = reconcileChildFibers(wip, current?.child, children);
+	} else {
+		// mount 大量节点的插入。
+		wip.child = mountChildFibers(wip, null, children);
+	}
+
+	reconcileChildFibers;
 }

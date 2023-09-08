@@ -1,6 +1,6 @@
-import { Props, Key } from 'shared/ReactTypes';
+import { Props, Key, ReactElementType } from 'shared/ReactTypes';
 
-import { WorkTag } from './workTags';
+import { FunctionComponent, HostComponent, WorkTag } from './workTags';
 import { Flags, NoFlags } from './fiberFlags';
 
 // 为什么直接引用，而是在tsconfig中配置paths。
@@ -122,3 +122,21 @@ export const createWorkInProgress = (
 
 	return wip;
 };
+
+// 根据reactElementType创建fiber并返回。
+export function createFiberFromElement(element: ReactElementType) {
+	const { type, key, props } = element;
+	let fiberTag: WorkTag = FunctionComponent;
+
+	// 判断type的类型。
+	if (typeof type == 'string') {
+		// <div/> type:"div"
+		fiberTag = HostComponent;
+	} else if (typeof type !== 'function' && __DEV__) {
+		console.warn('未定义的type类型', element);
+	}
+
+	// 返回个新的fiber。
+	const fiber = new FiberNode(fiberTag, props, key);
+	return fiber;
+}
