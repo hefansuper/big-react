@@ -18,7 +18,8 @@ export class FiberNode {
 	sibling: FiberNode | null;
 	child: FiberNode | null;
 	index: number;
-
+	// 子树中包含的flags。
+	subtreeFlags: Flags;
 	ref: any;
 
 	pendingProps: Props;
@@ -26,6 +27,7 @@ export class FiberNode {
 	memoizedState: any;
 	alternate: FiberNode | null;
 	flags: Flags;
+
 	updateQueue: unknown;
 
 	// tag 描述fiber node 是什么类型的节点。
@@ -71,6 +73,7 @@ export class FiberNode {
 		this.alternate = null;
 		// 副作用
 		this.flags = NoFlags;
+		this.subtreeFlags = NoFlags;
 	}
 }
 

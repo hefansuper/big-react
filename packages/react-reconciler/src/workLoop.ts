@@ -69,6 +69,12 @@ function renderRoot(root: FiberNode) {
 			workInProgress = null;
 		}
 	} while (true);
+
+	const finishedWork = root.current.alternate;
+	root.finishedWork = finishedWork;
+
+	// wip fiberNode树 树中的flags 执行具体的dom操作。
+	commitRoot(root);
 }
 
 export function scheduleUpdateOnFiber(fiber: FiberNode) {
